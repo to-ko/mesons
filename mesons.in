@@ -1,0 +1,95 @@
+[Run name]
+name         openQCD_run_name
+output       mesons_run_name      # optional
+
+
+[Directories]                     # as in openQCD            
+log_dir      ./log
+loc_dir      ./cnfg
+cnfg_dir     ./cnfg
+dat_dir      ./dat
+
+[Configurations]                  # as in openQCD ms1
+first        1 
+last         10
+step         2
+
+[Random number generator]         # as in openQCD
+level        0      
+seed         73099  
+
+[Measurements]
+nprop        2                    # number of different quark lines
+ncorr        3                    # number of different correlators
+nnoise       100                  # number of noise vectors / conf
+noise_type   U1                   # noise type: U1 or Z2 or GAUSS
+csw          1.4951               # Dirac operator options 
+cF           1.0                  # common to all quark lines
+
+
+################################### For every quark line a Propagator 
+                                  # section, nprop in total
+[Propagator 0]
+kappa        0.121951219512195    # hopping parameter
+isp          0                    # solver id
+
+[Propagator 1]
+kappa        0.12
+isp          1
+
+################################## For every correlator a Correlator
+                                 # section, ncorr in total
+[Correlator 0]
+iprop        0 0                 # quark lines
+type         G5 G5               # Dirac structures src snk
+x0           16                  # source time slice
+
+[Correlator 1]
+iprop        0 0
+type         G0G5 G5
+x0           16
+
+[Correlator 2]
+iprop        0 1
+type         G1 G1
+x0           12
+
+################################# For every solver id used, one Solver
+                                # section, as in openQCD 
+
+[Solver 0]
+solver       DFL_SAP_GCR
+nkv          8
+isolv        1
+nmr          4
+ncy          5
+nmx          128
+res          1.0e-12
+
+[Solver 1]
+solver       DFL_SAP_GCR
+nkv          8
+isolv        1
+nmr          4
+ncy          6
+nmx          128
+res          1.0e-12
+
+[SAP]
+bs           4 4 4 4
+
+[Deflation subspace]
+bs           4 4 4 4
+Ns           20
+
+[Deflation subspace generation]
+kappa        0.12
+mu           0.01
+ninv         10
+nmr          4
+ncy          4
+
+[Deflation projection]
+nkv          16
+nmx          256
+res          1.0e-2

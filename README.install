@@ -1,0 +1,47 @@
+* download and extract the official openQCD-1.2 package from
+
+  http://luscher.web.cern.ch/luscher/openQCD/
+
+  You will need to know the full path to openQCD-1.2/modules/
+  
+
+* edit the Makefie of the mesons package, which should be in ./build/Makefile
+  The lines that need adjustment are the following:
+  
+  MDIR = ../../openQCD-1.2/modules
+  # change this to your openQCD/modules path
+
+  MPI_HOME = /usr/global/openmpi-1.6.5 
+  # change this to your MPI implementation
+
+  CFLAGS = -std=c89 -pedantic -fstrict-aliasing \
+         -Wall -Wno-long-long -Wstrict-prototypes -Werror \
+         -O -mno-avx -Dx64 -DPM
+  # change this to suit your machine
+
+* edit the ./build/include/global.h file. It is a copy of the openQCD-1.2 global.h
+  file and the follwing lines need to be adjusted to your geometry:
+
+  #define NPROC0 2
+  #define NPROC1 2
+  #define NPROC2 2
+  #define NPROC3 1
+
+  #define L0 16
+  #define L1 8
+  #define L2 8
+  #define L3 16
+
+  #define NPROC0_BLK 2
+  #define NPROC1_BLK 2
+  #define NPROC2_BLK 2
+  #define NPROC3_BLK 1
+
+  #define NAME_SIZE 128
+
+* Switch back to ./build, type: make clean
+
+* type: make
+
+* ./build/mesons is the correlation measurement program
+  

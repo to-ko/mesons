@@ -1,0 +1,138 @@
+################################################################
+#  Version to be used with   openQCD-1.2
+################################################################
+
+
+Main program mesons
+
+SYNTAX
+
+mesons -i <filename> [-noexp] [-a [-norng]]
+
+
+DESCRIPTION
+
+This program reads gauge field configurations from disk 
+and computes meson correlators from a specified time x0
+to all other times. The result is stored in a binary file
+
+
+COMMAND-LINE OPTIONS
+
+The program has only few options since most of the parameters are passed
+through an input file. The options are
+
+-i <filename>    Specifies the name of the input file. The name can be
+                 a fully qualified name or be specified relative to the 
+                 working directory.
+
+-noexp           Field configurations are normally read in exported
+                 file format from the specified configuration directory.
+                 If this option is set, the configurations are instead
+                 expected in the imported file format on the local disks.
+
+-a               This option specifies that the run is a continuation of
+                 a previous run. All output data are appended to the
+                 previous output files. 
+
+-norng           Continuation runs normally start from the saved state
+                 of the random number generators. This option specifies 
+                 that the traditional initialization of the generators is
+                 to be used (see section RANDOM NUMBER GENERATOR below).
+                 NOTE: starting from the saved state is not possible if
+                 the process grid sizes NPROC0,..,NPROC3 are changed.
+
+
+INPUT PARAMETERS
+
+The lattice size and the process grid must be defined in the file global.h
+(see README.global). All other parameters are read from the input file. An
+example of a valid input file is ./doc/sample_input.in.
+See ./doc/mesons.pdf for a detailed documentation.
+
+
+FILES
+
+The program searches for exported field configurations 
+
+  <run name>n<int>        
+
+in the directory cnfg_dir, where <int> is the configuration number.
+Imported configurations 
+
+  <run name>n<int>_0       (on process 0)
+  <run name>n<int>_1       (on process 1)
+  <run name>n<int>_2       (on process 2)
+        ...                     ...
+
+are searched in the directory loc_dir. 
+
+The program prints some information on the progress of the computations 
+to the files
+
+  <output name>.mesons.log       Log file
+  <output name>.mesons.log~      Backup log file
+
+in the directory log_dir. The backup file is updated each time a configuration
+is fully processed.
+
+
+BINARY FILE FORMAT
+
+The *.log files are ASCII files that should be readable on any machine. Data
+and configuration files, on the other hand, are written in binary format using
+the fwrite() function. Integers are written as 4 byte signed integers and
+floating-point numbers according to the IEEE-754 standard for double-precision
+numbers.
+
+Binary data written to disk are converted to little endian byte order if the
+machine is big endian. Field configurations and measurement data stored on
+disk are thus always in little endian byte order independently of the machine
+that is used. A specification of the output file format is given in
+./doc/mesons.pdf
+
+
+
+RANDOM NUMBER GENERATOR
+
+Random numbers are generated using the ranlux generator. The generator is
+initialized using the values of the parameters "level" and "seed" specified in
+the input file. If the configurations are read in imported form, the state of
+the generator is *not* set to the one stored on the configuration file. The
+generated random numbers, and consequently the random source fields, are
+therefore independent of whether the configurations are read in imported or
+exported form.
+
+
+SAFETY MEASURES AND ERROR REPORTING
+
+A number of safety measures have been implemented:
+
+- It is not possible to overwrite an existing log file. This file
+  must first be deleted or renamed if a run is to be repeated.
+
+- The accessibility of the various directories and the compatibility
+  of the chosen parameters is checked at the beginning of the program.
+
+Any attempt to force illegal operations leads to an abnormal termination of
+the program, with an informative message being written either to the log file
+or the file STARTUP_ERROR in the program directory (if the error occurs before
+the log file is opened).
+
+On the other hand, once a run started successfully, the calculated propagators
+are saved unconditionally, i.e. any existing propagator files with matching
+filenames are overwritten.
+
+It should be noted that filenames may not be longer than 127 characters. The
+program checks at an early stage whether this is the case or not. Longer
+filenames can be accommodated by setting the macro NAME_SIZE in the header
+file global.h to a larger value.
+
+
+EARLY TERMINATION
+
+The program can be stopped gracefully by touching a file in the log directory
+with the same name as the log file but with extension .end instead of .log. It
+may take a while until the program exits, because it will only do so when the
+current field configuration is fully processed.
+
